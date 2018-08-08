@@ -427,7 +427,11 @@ func use(version string, cpuarch string) {
   }
 
   // Create or update the symlink
-  sym, _ := os.Stat(env.symlink)
+  var elevateCommandPath = filepath.Join(env.root, "elevate.cmd")
+  var symlinkPath = env.symlink
+  var nodeVersionPath = filepath.Join(env.root, "v"+version)
+
+  sym, _ := os.Stat(symlinkPath)
   if sym != nil {
     cmd := exec.Command(filepath.Join(env.root, "elevate.cmd"), "cmd", "/C", "rmdir", filepath.Clean(env.symlink))
     var output bytes.Buffer
@@ -436,8 +440,13 @@ func use(version string, cpuarch string) {
     cmd.Stderr = &_stderr
     perr := cmd.Run()
     if perr != nil {
-        fmt.Println(fmt.Sprint(perr) + ": " + _stderr.String())
+      fmt.Println(fmt.Sprint(perr) + ": " + _stderr.String())
+      fmt.Println("Attempting to remove existing node link via system.")
+      osRemErr := os.Remove(symlinkPath)
+      if osRemErr != nil {
+        fmt.Println(fmt.Sprint(osRemErr)) // FIXME: Could os.Stderr be used to give more details as to why it failed?
         return
+      }
     }
   }
 
@@ -449,7 +458,12 @@ func use(version string, cpuarch string) {
   err := c.Run()
   if err != nil {
       fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-      return
+      fmt.Println("Attempting to add node link for v" + version + " via system")
+      osMkErr := os.Symlink(nodeVersionPath, symlinkPath)
+      if osMkErr != nil {
+        fmt.Println(fmt.Sprint(osMkErr)) // FIXME // FIXME: Could os.Stderr be used to give more details as to why it failed?
+        return
+      }
   }
 
   // Use the assigned CPU architecture
