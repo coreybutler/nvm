@@ -181,15 +181,17 @@ func install(version string, cpuarch string) {
     cpuarch = arch.Validate(cpuarch)
   }
 
-  // If user specifies "latest" version, find out what version is
+  // If user specifies "latest" or "lts" version, find out what version is
   if version == "latest" {
     url := web.GetFullNodeUrl("latest/SHASUMS256.txt");
     content := web.GetRemoteTextFile(url)
     re := regexp.MustCompile("node-v(.+)+msi")
     reg := regexp.MustCompile("node-v|-x.+")
     version = reg.ReplaceAllString(re.FindString(content),"")
+  } else if version == "lts" {
+    version = node.GetLTS()
   }
-
+  
   // if the user specifies only the major version number then install the latest
   // version of the major version number
   if len(version) == 1 {
@@ -576,7 +578,7 @@ func help() {
   fmt.Println("\nUsage:")
   fmt.Println(" ")
   fmt.Println("  nvm arch                     : Show if node is running in 32 or 64 bit mode.")
-  fmt.Println("  nvm install <version> [arch] : The version can be a node.js version or \"latest\" for the latest stable version.")
+  fmt.Println("  nvm install <version> [arch] : The version can be a node.js version, \"latest\" for the latest stable version, or \"lts\" for the latest LTS.")
   fmt.Println("                                 Optionally specify whether to install the 32 or 64 bit version (defaults to system arch).")
   fmt.Println("                                 Set [arch] to \"all\" to install 32 AND 64 bit versions.")
   fmt.Println("                                 Add --insecure to the end of this command to bypass SSL validation of the remote download server.")
