@@ -49,6 +49,8 @@ _If NVM4W doesn't appear to work immediately after installation, restart the ter
 
 ![NVM for Windows Installer](http://i.imgur.com/x8EzjSC.png)
 
+Alternatively, you can install via package manager: `choco install nvm` / `scoop install nvm`.
+
 #### Reinstall any global utilities
 
 After install, reinstalling global utilities (e.g. yarn) will have to be done for each installed version of node:
